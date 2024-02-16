@@ -17,4 +17,4 @@ docker build \
   -t rails-new-$RUBY_VERSION-$RAILS_VERSION .
 
 # Run the image
-docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $1
+docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $@
