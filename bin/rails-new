@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# This script is to generate a new Rails application using the Dockerfile in this repository.
+
+# The first argument is the name of the new Rails application.
+
+# Ruby version variable
+RUBY_VERSION=3.2.3
+
+# Rails version variable
+RAILS_VERSION=7.1.3
+
+# Build the image
+docker build \
+  --build-arg RUBY_VERSION=$RUBY_VERSION \
+  --build-arg RAILS_VERSION=$RAILS_VERSION \
+  -t rails-new-$RUBY_VERSION-$RAILS_VERSION .
+
+# Run the image
+docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $1
