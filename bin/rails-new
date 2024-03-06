@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # This script is to generate a new Rails application using the Dockerfile in this repository.
 
