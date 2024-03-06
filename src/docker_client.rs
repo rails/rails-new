@@ -28,6 +28,7 @@ impl DockerClient {
 
         command
             .arg("run")
+            .arg("--rm")
             .arg("-v")
             .arg(format!("{}:{}", current_dir, current_dir))
             .arg("-w")
