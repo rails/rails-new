@@ -1,12 +1,14 @@
 // Write a CLI program that call the bash file rails-new inside the bin folder.
 
 // use std::process::Command;
+mod docker_client;
 mod rails_new;
 use rails_new::Cli;
 use std::io::Write;
-use std::process::{Command, Stdio};
 
 use clap::Parser;
+
+use crate::docker_client::DockerClient;
 
 fn main() {
     let cli = Cli::parse();
@@ -19,16 +21,7 @@ fn main() {
 
     // Run docker build --build-arg RUBY_VERSION=$RUBY_VERSION --build-arg RAILS_VERSION=$RAILS_VERSION -t rails-new-$RUBY_VERSION-$RAILS_VERSION
     // passing the content of DOCKERFILE to the command stdin
-    let mut child = Command::new("docker")
-        .arg("build")
-        .arg("--build-arg")
-        .arg(format!("RUBY_VERSION={}", ruby_version))
-        .arg("--build-arg")
-        .arg(format!("RAILS_VERSION={}", rails_version))
-        .arg("-t")
-        .arg(format!("rails-new-{}-{}", ruby_version, rails_version))
-        .arg("-")
-        .stdin(Stdio::piped())
+    let mut child = DockerClient::build_image(&ruby_version, &rails_version)
         .spawn()
         .expect("Failed to execute process");
 
@@ -40,19 +33,7 @@ fn main() {
     assert!(status.success());
 
     // Run the image with docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $@
-    let binding = std::env::current_dir().unwrap();
-    let current_dir = binding.to_str().unwrap();
-
-    let status = Command::new("docker")
-        .arg("run")
-        .arg("-v")
-        .arg(format!("{}:{}", current_dir, current_dir))
-        .arg("-w")
-        .arg(current_dir)
-        .arg(format!("rails-new-{}-{}", ruby_version, rails_version))
-        .arg("rails")
-        .arg("new")
-        .args(cli.args)
+    let status = DockerClient::run_image(&ruby_version, &rails_version, cli.args)
         .status()
         .expect("Failed to execute process");
 
