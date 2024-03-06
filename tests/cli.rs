@@ -8,8 +8,10 @@ fn requires_a_name() -> Result<(), Box<dyn std::error::Error>> {
 
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("the following required arguments were not provided:"))
-        .stderr(predicate::str::contains("<NAME>"));
+        .stderr(predicate::str::contains(
+            "the following required arguments were not provided:",
+        ))
+        .stderr(predicate::str::contains("<ARGS>..."));
 
     Ok(())
 }
