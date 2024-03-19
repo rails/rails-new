@@ -16,8 +16,8 @@ fn main() {
     // read the content of the DOCKERFILE and store it in a variable
     let dockerfile = include_bytes!("../Dockerfile");
 
-    let ruby_version = cli.ruby_version.unwrap();
-    let rails_version = cli.rails_version.unwrap();
+    let ruby_version = cli.ruby_version;
+    let rails_version = cli.rails_version;
 
     // Run docker build --build-arg RUBY_VERSION=$RUBY_VERSION --build-arg RAILS_VERSION=$RAILS_VERSION -t rails-new-$RUBY_VERSION-$RAILS_VERSION
     // passing the content of DOCKERFILE to the command stdin

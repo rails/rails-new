@@ -7,9 +7,9 @@ pub struct Cli {
     /// arguments passed to `rails new`
     pub args: Vec<String>,
     #[clap(long, short = 'u', default_value = "3.2.3")]
-    pub ruby_version: Option<String>,
+    pub ruby_version: String,
     #[clap(long, short = 'r', default_value = "7.1.3")]
-    pub rails_version: Option<String>,
+    pub rails_version: String,
 }
 
 #[test]
