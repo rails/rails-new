@@ -8,22 +8,19 @@ Rails versions for you, so you don't have to worry about it.
 You need to have Docker installed on your machine. You can find instructions on how to install Docker on your machine
 [here](https://docs.docker.com/engine/install/).
 
+## Installation
+
+
+
 ## Usage
-
-First, clone the repository:
-
-```bash
-git clone https://github.com/rails/rails-new.git
-cd rails-new
-```
 
 To generate a new Rails application, you can run the following command:
 
 ```bash
-bin/rails-new myapp
+rails-new myapp
 ```
 
 Or with options:
 ```bash
-bin/rails-new myapp --main
+rails-new myapp --main
 ```
