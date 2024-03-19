@@ -14,7 +14,7 @@ fn main() {
     let cli = Cli::parse();
 
     // read the content of the DOCKERFILE and store it in a variable
-    let dockerfile = include_str!("../Dockerfile");
+    let dockerfile = include_bytes!("../Dockerfile");
 
     let ruby_version = cli.ruby_version.unwrap();
     let rails_version = cli.rails_version.unwrap();
@@ -26,7 +26,7 @@ fn main() {
         .expect("Failed to execute process");
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    stdin.write_all(dockerfile.as_bytes()).unwrap();
+    stdin.write_all(dockerfile).unwrap();
 
     let status = child.wait().expect("failed to wait on child");
 
