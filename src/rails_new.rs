@@ -4,6 +4,7 @@ use clap::Parser;
 #[command(version, about, long_about = None)]
 pub struct Cli {
     #[clap(trailing_var_arg = true, required = true)]
+    /// arguments passed to `rails new`
     pub args: Vec<String>,
     #[clap(long, short = 'u', default_value = "3.2.3")]
     pub ruby_version: Option<String>,
