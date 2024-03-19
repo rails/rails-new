@@ -25,8 +25,10 @@ fn main() {
         .spawn()
         .expect("Failed to execute process");
 
-    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    stdin.write_all(dockerfile).unwrap();
+    let mut stdin = child.stdin.take().expect("Failed to open stdin");
+    std::thread::spawn(move || {
+        stdin.write_all(dockerfile).unwrap();
+    });
 
     let status = child.wait().expect("failed to wait on child");
 
