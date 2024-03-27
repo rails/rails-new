@@ -1,7 +1,7 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, subcommand_negates_reqs = true)]
 pub struct Cli {
     #[clap(trailing_var_arg = true, required = true)]
     /// arguments passed to `rails new`
@@ -10,6 +10,15 @@ pub struct Cli {
     pub ruby_version: String,
     #[clap(long, short = 'r', default_value = "7.1.3")]
     pub rails_version: String,
+
+    #[command(subcommand)]
+    pub command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Prints `rails new --help`
+    RailsHelp {},
 }
 
 #[cfg(test)]
