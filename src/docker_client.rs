@@ -65,3 +65,131 @@ impl DockerClient {
         command
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{env::current_dir, ffi::OsStr};
+
+    #[test]
+    fn build_image() {
+        let command = DockerClient::build_image("3.2.3", "7.1.3", None, None);
+
+        assert_eq!(command.get_program(), "docker");
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_image_with_user_id() {
+        let command = DockerClient::build_image("3.2.3", "7.1.3", Some(1000), None);
+
+        assert_eq!(command.get_program(), "docker");
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "--build-arg",
+                "USER_ID=1000",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_image_with_group_id() {
+        let command = DockerClient::build_image("3.2.3", "7.1.3", None, Some(1000));
+
+        assert_eq!(command.get_program(), "docker");
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "--build-arg",
+                "GROUP_ID=1000",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn run_image() {
+        let command = DockerClient::run_image("3.2.3", "7.1.3", vec!["my_app".to_string()]);
+
+        assert_eq!(command.get_program(), "docker");
+
+        let binding = current_dir().unwrap();
+        let current_dir = binding.to_str().unwrap();
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "run",
+                "--rm",
+                "-v",
+                &format!("{}:{}", current_dir, current_dir),
+                "-w",
+                current_dir,
+                "rails-new-3.2.3-7.1.3",
+                "rails",
+                "new",
+                "my_app",
+            ]
+        );
+    }
+
+    #[test]
+    fn get_help() {
+        let command = DockerClient::get_help("3.2.3", "7.1.3");
+
+        assert_eq!(command.get_program(), "docker");
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "run",
+                "--rm",
+                "rails-new-3.2.3-7.1.3",
+                "rails",
+                "new",
+                "--help",
+            ]
+        );
+    }
+}
