@@ -11,58 +11,70 @@ impl DockerClient {
     ) -> Command {
         let mut command = Command::new("docker");
 
-        command
-            .arg("build")
-            .arg("--build-arg")
-            .arg(format!("RUBY_VERSION={}", ruby_version))
-            .arg("--build-arg")
-            .arg(format!("RAILS_VERSION={}", rails_version));
+        command.arg("build");
 
-        user_id.map(|id| command.args(["--build-arg", &format!("USER_ID={}", id)]));
-        group_id.map(|id| command.args(["--build-arg", &format!("GROUP_ID={}", id)]));
+        Self::set_build_arg(&mut command, "RUBY_VERSION", ruby_version);
+        Self::set_build_arg(&mut command, "RAILS_VERSION", rails_version);
 
-        command
-            .arg("-t")
-            .arg(format!("rails-new-{}-{}", ruby_version, rails_version))
-            .arg("-")
-            .stdin(Stdio::piped());
+        user_id.map(|id| Self::set_build_arg(&mut command, "USER_ID", &id.to_string()));
+        group_id.map(|id| Self::set_build_arg(&mut command, "GROUP_ID", &id.to_string()));
+
+        command.arg("-t");
+
+        Self::set_image_name(&mut command, ruby_version, rails_version);
+
+        command.arg("-").stdin(Stdio::piped());
 
         command
     }
 
     pub fn run_image(ruby_version: &str, rails_version: &str, args: Vec<String>) -> Command {
-        let binding = std::env::current_dir().unwrap();
-        let current_dir = binding.to_str().unwrap();
+        let mut command = Self::run();
 
-        let mut command = Command::new("docker");
-
-        command
-            .arg("run")
-            .arg("--rm")
-            .arg("-v")
-            .arg(format!("{}:{}", current_dir, current_dir))
-            .arg("-w")
-            .arg(current_dir)
-            .arg(format!("rails-new-{}-{}", ruby_version, rails_version))
-            .arg("rails")
-            .arg("new")
-            .args(args);
+        Self::set_workdir(&mut command);
+        Self::set_image_name(&mut command, ruby_version, rails_version);
+        Self::set_rails_new(&mut command, args);
 
         command
     }
 
     pub fn get_help(ruby_version: &str, rails_version: &str) -> Command {
+        let mut command = Self::run();
+
+        Self::set_image_name(&mut command, ruby_version, rails_version);
+        Self::set_rails_new(&mut command, vec!["--help".to_string()]);
+
+        command
+    }
+
+    fn run() -> Command {
         let mut command = Command::new("docker");
 
-        command
-            .arg("run")
-            .arg("--rm")
-            .arg(format!("rails-new-{}-{}", ruby_version, rails_version))
-            .arg("rails")
-            .arg("new")
-            .arg("--help");
+        command.args(["run", "--rm"]);
 
         command
+    }
+
+    fn set_build_arg(command: &mut Command, key: &str, value: &str) {
+        command.args(["--build-arg", &format!("{}={}", key, value)]);
+    }
+
+    fn set_workdir(command: &mut Command) {
+        let binding = std::env::current_dir().unwrap();
+        let current_dir = binding.to_str().unwrap();
+
+        command
+            .arg("-v")
+            .arg(format!("{}:{}", current_dir, current_dir))
+            .args(["-w", current_dir]);
+    }
+
+    fn set_image_name(command: &mut Command, ruby_version: &str, rails_version: &str) {
+        command.arg(format!("rails-new-{}-{}", ruby_version, rails_version));
+    }
+
+    fn set_rails_new(command: &mut Command, args: Vec<String>) {
+        command.args(["rails", "new"]).args(args);
     }
 }
 
