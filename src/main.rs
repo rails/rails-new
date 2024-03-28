@@ -42,10 +42,9 @@ fn main() {
 
     match &cli.command {
         Some(Commands::RailsHelp {}) => {
-            let mut child = DockerClient::get_help(&ruby_version, &rails_version)
-                .spawn()
+            let status = DockerClient::get_help(&ruby_version, &rails_version)
+                .status()
                 .expect("Failed to execute process");
-            let status = child.wait().expect("failed to wait on child");
 
             assert!(status.success());
         }
