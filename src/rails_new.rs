@@ -44,4 +44,33 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn default_values() -> Result<(), Box<dyn std::error::Error>> {
+        use clap::CommandFactory;
+
+        let m = Cli::command().get_matches_from(vec!["rails-new", "my_app"]);
+
+        let ruby_version = m.get_one::<String>("ruby_version").unwrap();
+        let rails_version = m.get_one::<String>("rails_version").unwrap();
+
+        assert_eq!(ruby_version, "3.2.3");
+        assert_eq!(rails_version, "7.1.3");
+
+        Ok(())
+    }
+
+    #[test]
+    fn rails_help() -> Result<(), Box<dyn std::error::Error>> {
+        use clap::CommandFactory;
+
+        let m = Cli::command().get_matches_from(vec!["rails-new", "rails-help"]);
+
+        match m.subcommand_name() {
+            Some("rails-help") => {}
+            _ => panic!("Expected subcommand 'rails-help'"),
+        }
+
+        Ok(())
+    }
 }
