@@ -12,21 +12,27 @@ pub struct Cli {
     pub rails_version: String,
 }
 
-#[test]
-fn verify_cli() {
-    use clap::CommandFactory;
-    Cli::command().debug_assert()
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn arguments_are_directed_to_rails_new() -> Result<(), Box<dyn std::error::Error>> {
-    use clap::CommandFactory;
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
 
-    let m = Cli::command().get_matches_from(vec!["rails-new", "my_app", "--main"]);
+        Cli::command().debug_assert()
+    }
 
-    let trail: Vec<_> = m.get_many::<String>("args").unwrap().collect();
+    #[test]
+    fn arguments_are_directed_to_rails_new() -> Result<(), Box<dyn std::error::Error>> {
+        use clap::CommandFactory;
 
-    assert_eq!(trail, &["my_app", "--main"]);
+        let m = Cli::command().get_matches_from(vec!["rails-new", "my_app", "--main"]);
 
-    Ok(())
+        let trail: Vec<_> = m.get_many::<String>("args").unwrap().collect();
+
+        assert_eq!(trail, &["my_app", "--main"]);
+
+        Ok(())
+    }
 }
