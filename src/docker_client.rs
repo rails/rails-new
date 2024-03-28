@@ -50,4 +50,18 @@ impl DockerClient {
 
         command
     }
+
+    pub fn get_help(ruby_version: &str, rails_version: &str) -> Command {
+        let mut command = Command::new("docker");
+
+        command
+            .arg("run")
+            .arg("--rm")
+            .arg(format!("rails-new-{}-{}", ruby_version, rails_version))
+            .arg("rails")
+            .arg("new")
+            .arg("--help");
+
+        command
+    }
 }

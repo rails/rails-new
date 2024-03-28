@@ -3,8 +3,8 @@
 // use std::process::Command;
 mod docker_client;
 mod rails_new;
-use rails_new::Cli;
-use std::io::Write;
+use rails_new::{Cli, Commands};
+use std::{io::Write, process::Command};
 
 use clap::Parser;
 
@@ -40,10 +40,20 @@ fn main() {
 
     assert!(status.success());
 
-    // Run the image with docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $@
-    let status = DockerClient::run_image(&ruby_version, &rails_version, cli.args)
-        .status()
-        .expect("Failed to execute process");
+    let mut command: Command;
+
+    match &cli.command {
+        Some(Commands::RailsHelp {}) => {
+            command = DockerClient::get_help(&ruby_version, &rails_version)
+        }
+
+        None => {
+            // Run the image with docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $@
+            command = DockerClient::run_image(&ruby_version, &rails_version, cli.args)
+        }
+    }
+
+    let status = command.status().expect("Failed to execute process");
 
     assert!(status.success());
 }
