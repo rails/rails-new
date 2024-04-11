@@ -1,5 +1,5 @@
 pub fn dockerfile_content() -> &'static [u8] {
-    include_bytes!("../Dockerfile.windows")
+    include_bytes!("../Dockerfile")
 }
 
 pub fn get_user_id() -> Option<u32> {

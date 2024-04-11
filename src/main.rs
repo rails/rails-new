@@ -10,8 +10,8 @@ use clap::Parser;
 
 use crate::docker_client::DockerClient;
 
-#[cfg_attr(unix, path = "unix.rs")]
-#[cfg_attr(windows, path = "windows.rs")]
+#[cfg_attr(all(unix, not(target_os = "macos")), path = "unix.rs")]
+#[cfg_attr(any(windows, target_os = "macos"), path = "windows.rs")]
 mod os_specific;
 
 fn main() {
