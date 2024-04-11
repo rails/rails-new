@@ -16,8 +16,12 @@ impl DockerClient {
         Self::set_build_arg(&mut command, "RUBY_VERSION", ruby_version);
         Self::set_build_arg(&mut command, "RAILS_VERSION", rails_version);
 
-        user_id.map(|id| Self::set_build_arg(&mut command, "USER_ID", &id.to_string()));
-        group_id.map(|id| Self::set_build_arg(&mut command, "GROUP_ID", &id.to_string()));
+        if let Some(id) = user_id {
+            Self::set_build_arg(&mut command, "USER_ID", &id.to_string())
+        }
+        if let Some(id) = group_id {
+            Self::set_build_arg(&mut command, "GROUP_ID", &id.to_string())
+        }
 
         command.arg("-t");
 
