@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=3.2.3
+ARG RUBY_VERSION=3.3.1
 FROM ruby:${RUBY_VERSION}
 ARG RAILS_VERSION
 # Install Rails based on the version specified but if not specified, install the latest version.
