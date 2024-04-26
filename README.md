@@ -10,7 +10,7 @@ You need to have Docker installed on your machine. You can find instructions on 
 
 ## Installation
 
-
+Go to the [latest release](https://github.com/rails/rails-new/releases/tag/latest) and download the executable for your platform (not the source code). For example, on M1 MacOS this would be `rails-new-aarch64-apple-darwin.tar.gz`. Once the download is complete, unzip the `.tar.gz` file, which will create the `rails-new` executable. Move the executable into your path so that it is ready to run from the command line.
 
 ## Usage
 
@@ -24,3 +24,5 @@ Or with options:
 ```bash
 rails-new myapp --main
 ```
+
+The list of available options is found in the [Rails guides](https://guides.rubyonrails.org/command_line.html#rails-new).
