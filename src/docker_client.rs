@@ -38,6 +38,7 @@ impl DockerClient {
         Self::set_workdir(&mut command);
         Self::set_image_name(&mut command, ruby_version, rails_version);
         Self::set_rails_new(&mut command, args);
+        Self::set_devcontainer_flag(&mut command);
 
         command
     }
@@ -79,6 +80,10 @@ impl DockerClient {
 
     fn set_rails_new(command: &mut Command, args: Vec<String>) {
         command.args(["rails", "new"]).args(args);
+    }
+
+    fn set_devcontainer_flag(command: &mut Command) {
+        command.args(["--devcontainer"]);
     }
 }
 
@@ -184,6 +189,7 @@ mod tests {
                 "rails",
                 "new",
                 "my_app",
+                "--devcontainer",
             ]
         );
     }
