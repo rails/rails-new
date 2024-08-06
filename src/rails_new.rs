@@ -6,10 +6,14 @@ pub struct Cli {
     #[clap(trailing_var_arg = true, required = true)]
     /// arguments passed to `rails new`
     pub args: Vec<String>,
-    #[clap(long, short = 'u', default_value = "3.3.3")]
+    #[clap(long, short = 'u', default_value = "3.3.4")]
     pub ruby_version: String,
     #[clap(long, short = 'r', default_value = "7.1.3")]
     pub rails_version: String,
+    #[clap(long, short = 'n', default_value = "22.1")]
+    pub node_version: String,
+    #[clap(long, short = 'y', default_value = "1.22.22")]
+    pub yarn_version: String,
 
     #[command(subcommand)]
     pub command: Option<Commands>,
@@ -53,9 +57,13 @@ mod tests {
 
         let ruby_version = m.get_one::<String>("ruby_version").unwrap();
         let rails_version = m.get_one::<String>("rails_version").unwrap();
+        let node_version = m.get_one::<String>("node_version").unwrap();
+        let yarn_version = m.get_one::<String>("yarn_version").unwrap();
 
-        assert_eq!(ruby_version, "3.3.3");
+        assert_eq!(ruby_version, "3.3.4");
         assert_eq!(rails_version, "7.1.3");
+        assert_eq!(node_version, "22.1");
+        assert_eq!(yarn_version, "1.22.22");
 
         Ok(())
     }
