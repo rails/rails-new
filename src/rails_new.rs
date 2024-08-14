@@ -8,7 +8,7 @@ pub struct Cli {
     pub args: Vec<String>,
     #[clap(long, short = 'u', default_value = "3.3.3")]
     pub ruby_version: String,
-    #[clap(long, short = 'r', default_value = "7.1.3")]
+    #[clap(long, short = 'r', default_value = "7.2.0")]
     pub rails_version: String,
 
     #[command(subcommand)]
@@ -55,7 +55,7 @@ mod tests {
         let rails_version = m.get_one::<String>("rails_version").unwrap();
 
         assert_eq!(ruby_version, "3.3.3");
-        assert_eq!(rails_version, "7.1.3");
+        assert_eq!(rails_version, "7.2.0");
 
         Ok(())
     }
