@@ -64,8 +64,9 @@ impl DockerClient {
     }
 
     fn set_workdir(command: &mut Command) {
-        let binding = std::env::current_dir().unwrap();
-        let current_dir = binding.to_str().unwrap();
+        let path = std::env::current_dir().expect("Failed to get current directory");
+        let absolute_path = path.canonicalize().expect("Failed to get current directory");
+        let current_dir = absolute_path.to_str().expect("Failed to get current directory");
 
         command
             .arg("-v")
@@ -167,7 +168,8 @@ mod tests {
         assert_eq!(command.get_program(), "docker");
 
         let binding = current_dir().unwrap();
-        let current_dir = binding.to_str().unwrap();
+        let absolute_path = binding.canonicalize().unwrap();
+        let current_dir = absolute_path.to_str().unwrap();
 
         let args: Vec<&OsStr> = command.get_args().collect();
 
