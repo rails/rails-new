@@ -1,6 +1,6 @@
 [package]
 name = "rails-new"
-version = "0.4.0"
+version = "0.4.1"
 description = "A CLI tool to generate a new Rails project"
 edition = "2021"
 
