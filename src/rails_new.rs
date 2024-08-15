@@ -17,7 +17,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Prints `rails new --help`
+    /// Print `rails new --help`
     RailsHelp {},
 }
 
