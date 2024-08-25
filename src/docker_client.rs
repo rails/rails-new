@@ -90,7 +90,7 @@ mod tests {
 
     #[test]
     fn build_image() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", None, None);
+        let command = DockerClient::build_image("3.3.4", "7.2.0", None, None);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -101,11 +101,11 @@ mod tests {
             &[
                 "build",
                 "--build-arg",
-                "RUBY_VERSION=3.2.3",
+                "RUBY_VERSION=3.3.4",
                 "--build-arg",
-                "RAILS_VERSION=7.1.3",
+                "RAILS_VERSION=7.2.0",
                 "-t",
-                "rails-new-3.2.3-7.1.3",
+                "rails-new-3.3.4-7.2.0",
                 "-",
             ]
         );
@@ -113,7 +113,7 @@ mod tests {
 
     #[test]
     fn build_image_with_user_id() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", Some(1000), None);
+        let command = DockerClient::build_image("3.3.4", "7.2.0", Some(1000), None);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -124,13 +124,13 @@ mod tests {
             &[
                 "build",
                 "--build-arg",
-                "RUBY_VERSION=3.2.3",
+                "RUBY_VERSION=3.3.4",
                 "--build-arg",
-                "RAILS_VERSION=7.1.3",
+                "RAILS_VERSION=7.2.0",
                 "--build-arg",
                 "USER_ID=1000",
                 "-t",
-                "rails-new-3.2.3-7.1.3",
+                "rails-new-3.3.4-7.2.0",
                 "-",
             ]
         );
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn build_image_with_group_id() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", None, Some(1000));
+        let command = DockerClient::build_image("3.3.4", "7.2.0", None, Some(1000));
 
         assert_eq!(command.get_program(), "docker");
 
@@ -149,13 +149,13 @@ mod tests {
             &[
                 "build",
                 "--build-arg",
-                "RUBY_VERSION=3.2.3",
+                "RUBY_VERSION=3.3.4",
                 "--build-arg",
-                "RAILS_VERSION=7.1.3",
+                "RAILS_VERSION=7.2.0",
                 "--build-arg",
                 "GROUP_ID=1000",
                 "-t",
-                "rails-new-3.2.3-7.1.3",
+                "rails-new-3.3.4-7.2.0",
                 "-",
             ]
         );
@@ -163,7 +163,7 @@ mod tests {
 
     #[test]
     fn run_image() {
-        let command = DockerClient::run_image("3.2.3", "7.1.3", vec!["my_app".to_string()]);
+        let command = DockerClient::run_image("3.3.4", "7.2.0", vec!["my_app".to_string()]);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -182,7 +182,7 @@ mod tests {
                 &format!("{}:{}", current_dir, current_dir),
                 "-w",
                 current_dir,
-                "rails-new-3.2.3-7.1.3",
+                "rails-new-3.3.4-7.2.0",
                 "rails",
                 "new",
                 "my_app",
@@ -192,7 +192,7 @@ mod tests {
 
     #[test]
     fn get_help() {
-        let command = DockerClient::get_help("3.2.3", "7.1.3");
+        let command = DockerClient::get_help("3.3.4", "7.2.0");
 
         assert_eq!(command.get_program(), "docker");
 
@@ -203,7 +203,7 @@ mod tests {
             &[
                 "run",
                 "--rm",
-                "rails-new-3.2.3-7.1.3",
+                "rails-new-3.3.4-7.2.0",
                 "rails",
                 "new",
                 "--help",
