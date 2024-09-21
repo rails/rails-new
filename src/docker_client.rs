@@ -194,7 +194,7 @@ mod tests {
         assert_eq!(command.get_program(), "docker");
 
         let binding = current_dir().unwrap();
-        let absolute_path = binding.canonicalize().unwrap();
+        let absolute_path = canonicalize_os_path(&binding).unwrap();
         let current_dir = absolute_path.to_str().unwrap();
 
         let args: Vec<&OsStr> = command.get_args().collect();
