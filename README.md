@@ -8,6 +8,8 @@ Rails versions for you, so you don't have to worry about it.
 You need to have Docker installed on your machine. You can find instructions on how to install Docker on your machine
 [here](https://docs.docker.com/engine/install/).
 
+**On Linux**, your user needs to be a member of the docker group. rails-new does not work with sudo. You can find instructions on this [here](https://docs.docker.com/engine/install/linux-postinstall/)
+
 ## Installation
 
 Go to the [latest release](https://github.com/rails/rails-new/releases/latest) and download the executable for your platform (not the source code). For example, on M1 macOS this would be `rails-new-aarch64-apple-darwin.tar.gz`. Once the download is complete, unzip the `.tar.gz` file, which will create the `rails-new` executable. Move the executable into your path so that it is ready to run from the command line.
