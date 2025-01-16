@@ -5,16 +5,23 @@ pub struct DockerClient {}
 impl DockerClient {
     pub fn build_image(
         ruby_version: &str,
-        rails_version: &str,
+        maybe_rails_version: Option<&str>,
         user_id: Option<u32>,
         group_id: Option<u32>,
+        rebuild: bool,
     ) -> Command {
         let mut command = Command::new("docker");
 
         command.arg("build");
 
+        if rebuild {
+            command.arg("--no-cache");
+        }
+
         Self::set_build_arg(&mut command, "RUBY_VERSION", ruby_version);
-        Self::set_build_arg(&mut command, "RAILS_VERSION", rails_version);
+        if let Some(rails_version) = maybe_rails_version {
+            Self::set_build_arg(&mut command, "RAILS_VERSION", rails_version);
+        }
 
         if let Some(id) = user_id {
             Self::set_build_arg(&mut command, "USER_ID", &id.to_string())
@@ -25,14 +32,18 @@ impl DockerClient {
 
         command.arg("-t");
 
-        Self::set_image_name(&mut command, ruby_version, rails_version);
+        Self::set_image_name(&mut command, ruby_version, maybe_rails_version);
 
         command.arg("-").stdin(Stdio::piped());
 
         command
     }
 
-    pub fn run_image(ruby_version: &str, rails_version: &str, args: Vec<String>) -> Command {
+    pub fn run_image(
+        ruby_version: &str,
+        rails_version: Option<&str>,
+        args: Vec<String>,
+    ) -> Command {
         let mut command = Self::run();
 
         Self::set_workdir(&mut command);
@@ -42,7 +53,7 @@ impl DockerClient {
         command
     }
 
-    pub fn get_help(ruby_version: &str, rails_version: &str) -> Command {
+    pub fn get_help(ruby_version: &str, rails_version: Option<&str>) -> Command {
         let mut command = Self::run();
 
         Self::set_image_name(&mut command, ruby_version, rails_version);
@@ -76,8 +87,16 @@ impl DockerClient {
             .args(["-w", current_dir]);
     }
 
-    fn set_image_name(command: &mut Command, ruby_version: &str, rails_version: &str) {
-        command.arg(format!("rails-new-{}-{}", ruby_version, rails_version));
+    fn set_image_name(
+        command: &mut Command,
+        ruby_version: &str,
+        maybe_rails_version: Option<&str>,
+    ) {
+        if let Some(rails_version) = maybe_rails_version {
+            command.arg(format!("rails-new-{}-{}", ruby_version, rails_version));
+        } else {
+            command.arg(format!("rails-new-{}", ruby_version));
+        }
     }
 
     fn set_rails_new(command: &mut Command, args: Vec<String>) {
@@ -116,7 +135,7 @@ mod tests {
 
     #[test]
     fn build_image() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", None, None);
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), None, None, false);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -139,7 +158,7 @@ mod tests {
 
     #[test]
     fn build_image_with_user_id() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", Some(1000), None);
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), Some(1000), None, false);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -164,7 +183,7 @@ mod tests {
 
     #[test]
     fn build_image_with_group_id() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", None, Some(1000));
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), None, Some(1000), false);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -188,8 +207,74 @@ mod tests {
     }
 
     #[test]
+    fn build_image_with_rebuild_flag() {
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), None, None, true);
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--no-cache",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_image_without_rails_version() {
+        let command = DockerClient::build_image("3.2.3", None, None, None, false);
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "-t",
+                "rails-new-3.2.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_image_with_both_ids() {
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), Some(1000), Some(1000), false);
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "--build-arg",
+                "USER_ID=1000",
+                "--build-arg",
+                "GROUP_ID=1000",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
     fn run_image() {
-        let command = DockerClient::run_image("3.2.3", "7.1.3", vec!["my_app".to_string()]);
+        let command = DockerClient::run_image("3.2.3", Some("7.1.3"), vec!["my_app".to_string()]);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -217,8 +302,35 @@ mod tests {
     }
 
     #[test]
+    fn run_image_without_rails_version() {
+        let command = DockerClient::run_image("3.2.3", None, vec!["my_app".to_string()]);
+
+        let binding = current_dir().unwrap();
+        let absolute_path = canonicalize_os_path(&binding).unwrap();
+        let current_dir = absolute_path.to_str().unwrap();
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "run",
+                "--rm",
+                "-v",
+                &format!("{}:{}", current_dir, current_dir),
+                "-w",
+                current_dir,
+                "rails-new-3.2.3",
+                "rails",
+                "new",
+                "my_app",
+            ]
+        );
+    }
+
+    #[test]
     fn get_help() {
-        let command = DockerClient::get_help("3.2.3", "7.1.3");
+        let command = DockerClient::get_help("3.2.3", Some("7.1.3"));
 
         assert_eq!(command.get_program(), "docker");
 
