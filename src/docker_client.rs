@@ -207,6 +207,72 @@ mod tests {
     }
 
     #[test]
+    fn build_image_with_rebuild_flag() {
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), None, None, true);
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--no-cache",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_image_without_rails_version() {
+        let command = DockerClient::build_image("3.2.3", None, None, None, false);
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "-t",
+                "rails-new-3.2.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_image_with_both_ids() {
+        let command = DockerClient::build_image("3.2.3", Some("7.1.3"), Some(1000), Some(1000), false);
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "build",
+                "--build-arg",
+                "RUBY_VERSION=3.2.3",
+                "--build-arg",
+                "RAILS_VERSION=7.1.3",
+                "--build-arg",
+                "USER_ID=1000",
+                "--build-arg",
+                "GROUP_ID=1000",
+                "-t",
+                "rails-new-3.2.3-7.1.3",
+                "-",
+            ]
+        );
+    }
+
+    #[test]
     fn run_image() {
         let command = DockerClient::run_image("3.2.3", Some("7.1.3"), vec!["my_app".to_string()]);
 
@@ -228,6 +294,33 @@ mod tests {
                 "-w",
                 current_dir,
                 "rails-new-3.2.3-7.1.3",
+                "rails",
+                "new",
+                "my_app",
+            ]
+        );
+    }
+
+    #[test]
+    fn run_image_without_rails_version() {
+        let command = DockerClient::run_image("3.2.3", None, vec!["my_app".to_string()]);
+
+        let binding = current_dir().unwrap();
+        let absolute_path = canonicalize_os_path(&binding).unwrap();
+        let current_dir = absolute_path.to_str().unwrap();
+
+        let args: Vec<&OsStr> = command.get_args().collect();
+
+        assert_eq!(
+            args,
+            &[
+                "run",
+                "--rm",
+                "-v",
+                &format!("{}:{}", current_dir, current_dir),
+                "-w",
+                current_dir,
+                "rails-new-3.2.3",
                 "rails",
                 "new",
                 "my_app",

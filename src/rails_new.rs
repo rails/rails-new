@@ -73,4 +73,52 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn custom_ruby_version() -> Result<(), Box<dyn std::error::Error>> {
+        use clap::CommandFactory;
+
+        let m = Cli::command().get_matches_from(vec!["rails-new", "--ruby-version", "3.2.0", "my_app"]);
+        let ruby_version = m.get_one::<String>("ruby_version").unwrap();
+        assert_eq!(ruby_version, "3.2.0");
+
+        // Test short form
+        let m = Cli::command().get_matches_from(vec!["rails-new", "-u", "3.2.0", "my_app"]);
+        let ruby_version = m.get_one::<String>("ruby_version").unwrap();
+        assert_eq!(ruby_version, "3.2.0");
+
+        Ok(())
+    }
+
+    #[test]
+    fn rails_version_flag() -> Result<(), Box<dyn std::error::Error>> {
+        use clap::CommandFactory;
+
+        let m = Cli::command().get_matches_from(vec!["rails-new", "--rails-version", "7.1.0", "my_app"]);
+        let rails_version = m.get_one::<String>("rails_version").unwrap();
+        assert_eq!(rails_version, "7.1.0");
+
+        // Test short form
+        let m = Cli::command().get_matches_from(vec!["rails-new", "-r", "7.1.0", "my_app"]);
+        let rails_version = m.get_one::<String>("rails_version").unwrap();
+        assert_eq!(rails_version, "7.1.0");
+
+        Ok(())
+    }
+
+    #[test]
+    fn rebuild_flag() -> Result<(), Box<dyn std::error::Error>> {
+        use clap::CommandFactory;
+
+        let m = Cli::command().get_matches_from(vec!["rails-new", "--rebuild", "my_app"]);
+        let rebuild = m.get_flag("rebuild");
+        assert!(rebuild);
+
+        // Test default value (false)
+        let m = Cli::command().get_matches_from(vec!["rails-new", "my_app"]);
+        let rebuild = m.get_flag("rebuild");
+        assert!(!rebuild);
+
+        Ok(())
+    }
 }
