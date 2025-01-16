@@ -6,7 +6,7 @@ pub struct Cli {
     #[clap(trailing_var_arg = true, required = true)]
     /// arguments passed to `rails new`
     pub args: Vec<String>,
-    #[clap(long, short = 'u', default_value = "3.4.1")]
+    #[clap(long, short = 'u', default_value = "latest")]
     pub ruby_version: String,
     #[clap(long, short = 'r')]
     pub rails_version: Option<String>,
@@ -55,7 +55,7 @@ mod tests {
 
         let ruby_version = m.get_one::<String>("ruby_version").unwrap();
 
-        assert_eq!(ruby_version, "3.4.1");
+        assert_eq!(ruby_version, "latest");
 
         Ok(())
     }
