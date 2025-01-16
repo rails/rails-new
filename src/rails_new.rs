@@ -10,6 +10,8 @@ pub struct Cli {
     pub ruby_version: String,
     #[clap(long, short = 'r', default_value = "8.0.1")]
     pub rails_version: String,
+    #[clap(long)]
+    pub rebuild: bool,
 
     #[command(subcommand)]
     pub command: Option<Commands>,

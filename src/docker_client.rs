@@ -8,10 +8,15 @@ impl DockerClient {
         rails_version: &str,
         user_id: Option<u32>,
         group_id: Option<u32>,
+        rebuild: bool,
     ) -> Command {
         let mut command = Command::new("docker");
 
         command.arg("build");
+
+        if rebuild {
+            command.arg("--no-cache");
+        }
 
         Self::set_build_arg(&mut command, "RUBY_VERSION", ruby_version);
         Self::set_build_arg(&mut command, "RAILS_VERSION", rails_version);
@@ -116,7 +121,7 @@ mod tests {
 
     #[test]
     fn build_image() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", None, None);
+        let command = DockerClient::build_image("3.2.3", "7.1.3", None, None, false);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -139,7 +144,7 @@ mod tests {
 
     #[test]
     fn build_image_with_user_id() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", Some(1000), None);
+        let command = DockerClient::build_image("3.2.3", "7.1.3", Some(1000), None, false);
 
         assert_eq!(command.get_program(), "docker");
 
@@ -164,7 +169,7 @@ mod tests {
 
     #[test]
     fn build_image_with_group_id() {
-        let command = DockerClient::build_image("3.2.3", "7.1.3", None, Some(1000));
+        let command = DockerClient::build_image("3.2.3", "7.1.3", None, Some(1000), false);
 
         assert_eq!(command.get_program(), "docker");
 
