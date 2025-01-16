@@ -65,8 +65,10 @@ impl DockerClient {
 
     fn set_workdir(command: &mut Command) {
         let path = std::env::current_dir().expect("Failed to get current directory");
-        let absolute_path = path.canonicalize().expect("Failed to get current directory");
-        let current_dir = absolute_path.to_str().expect("Failed to get current directory");
+        let absolute_path = canonicalize_os_path(&path).expect("Failed to build directory");
+        let current_dir = absolute_path
+            .to_str()
+            .expect("Failed to get current directory");
 
         command
             .arg("-v")
@@ -81,6 +83,30 @@ impl DockerClient {
     fn set_rails_new(command: &mut Command, args: Vec<String>) {
         command.args(["rails", "new"]).args(args);
     }
+}
+
+fn canonicalize_os_path(path: &std::path::Path) -> std::io::Result<std::path::PathBuf> {
+    let canonicalized = std::fs::canonicalize(path)?;
+
+    if cfg!(windows) {
+        let path_str = canonicalized.to_str().unwrap();
+        // On Windows only, check if the path starts with the UNC prefix
+        // example:  \\?\C:\path\to\file
+        if path_str.starts_with(r"\\?\") {
+            // drop UNC prefix
+            let path_str = &path_str[4..];
+            // grab the drive letter
+            let drive_letter = &path_str[0..1];
+            // swap \ for /
+            let rest_of_path = &path_str[2..].replace(r"\", "/");
+            // rebuild as /C/path/to/file
+            return Ok(std::path::PathBuf::from(format!(
+                "/{}/{}",
+                drive_letter, rest_of_path
+            )));
+        }
+    }
+    Ok(canonicalized)
 }
 
 #[cfg(test)]
@@ -168,7 +194,7 @@ mod tests {
         assert_eq!(command.get_program(), "docker");
 
         let binding = current_dir().unwrap();
-        let absolute_path = binding.canonicalize().unwrap();
+        let absolute_path = canonicalize_os_path(&binding).unwrap();
         let current_dir = absolute_path.to_str().unwrap();
 
         let args: Vec<&OsStr> = command.get_args().collect();
