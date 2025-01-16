@@ -18,14 +18,14 @@ fn main() {
     let cli = Cli::parse();
 
     let ruby_version = cli.ruby_version;
-    let rails_version = cli.rails_version;
+    let rails_version = cli.rails_version.as_deref();
     let rebuild = cli.rebuild;
 
     // Run docker build --build-arg RUBY_VERSION=$RUBY_VERSION --build-arg RAILS_VERSION=$RAILS_VERSION -t rails-new-$RUBY_VERSION-$RAILS_VERSION
     // passing the content of DOCKERFILE to the command stdin
     let mut child = DockerClient::build_image(
         &ruby_version,
-        &rails_version,
+        rails_version,
         os_specific::get_user_id(),
         os_specific::get_group_id(),
         rebuild,
@@ -46,12 +46,12 @@ fn main() {
 
     match &cli.command {
         Some(Commands::RailsHelp {}) => {
-            command = DockerClient::get_help(&ruby_version, &rails_version)
+            command = DockerClient::get_help(&ruby_version, rails_version)
         }
 
         None => {
             // Run the image with docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $@
-            command = DockerClient::run_image(&ruby_version, &rails_version, cli.args)
+            command = DockerClient::run_image(&ruby_version, rails_version, cli.args)
         }
     }
 
