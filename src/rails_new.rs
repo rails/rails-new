@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(version, about, long_about = None, subcommand_negates_reqs = true)]
 pub struct Cli {
-    #[clap(trailing_var_arg = true, required = true)]
+    #[clap(trailing_var_arg = true)]
     /// arguments passed to `rails new`
     pub args: Vec<String>,
     #[clap(long, short = 'u', default_value = "latest")]
