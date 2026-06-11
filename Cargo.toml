@@ -3,6 +3,7 @@ name = "rails-new"
 version = "0.5.0"
 description = "A CLI tool to generate a new Rails project"
 edition = "2021"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
