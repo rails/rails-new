@@ -34,3 +34,37 @@ The first time you attempt to use the executable in macOS you may see a message 
 In that case, please go to System Settings → Privacy & Security. You'll see a section mentioning "rails-new" with a button labeled "Allow Anyway" that you have to click.
 
 The list of available options is found in the [Rails guides](https://guides.rubyonrails.org/command_line.html#rails-new).
+
+## Configuration
+
+You can set default Ruby and Rails versions in `~/.config/rails-new/config.toml`:
+
+```toml
+ruby_version = "3.3.0"
+rails_version = "8.0.0"
+rails_args = [
+  "--database=postgresql",
+  "--skip-test",
+  "--skip-system-test",
+]
+```
+
+If `XDG_CONFIG_HOME` is set, the configuration file is read from
+`$XDG_CONFIG_HOME/rails-new/config.toml` instead. On Windows, `%APPDATA%\rails-new\config.toml`
+is used when `XDG_CONFIG_HOME` is not set.
+
+Command-line options take precedence over values in the configuration file:
+
+```bash
+rails-new --ruby-version 3.4.0 myapp
+```
+
+Rails arguments from the command line are appended after `rails_args`, allowing command-line
+options to override configurable options that Rails accepts more than once:
+
+```bash
+rails-new myapp --database=sqlite3
+```
+
+If no Ruby version is specified in either location, `latest` is used. If no Rails version is
+specified, the latest Rails version is installed.

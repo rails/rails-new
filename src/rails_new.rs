@@ -6,8 +6,8 @@ pub struct Cli {
     #[clap(trailing_var_arg = true, required = true)]
     /// arguments passed to `rails new`
     pub args: Vec<String>,
-    #[clap(long, short = 'u', default_value = "latest")]
-    pub ruby_version: String,
+    #[clap(long, short = 'u')]
+    pub ruby_version: Option<String>,
     #[clap(long, short = 'r')]
     pub rails_version: Option<String>,
     #[clap(long)]
@@ -48,14 +48,13 @@ mod tests {
     }
 
     #[test]
-    fn default_values() -> Result<(), Box<dyn std::error::Error>> {
+    fn versions_are_optional() -> Result<(), Box<dyn std::error::Error>> {
         use clap::CommandFactory;
 
         let m = Cli::command().get_matches_from(vec!["rails-new", "my_app"]);
 
-        let ruby_version = m.get_one::<String>("ruby_version").unwrap();
-
-        assert_eq!(ruby_version, "latest");
+        assert!(m.get_one::<String>("ruby_version").is_none());
+        assert!(m.get_one::<String>("rails_version").is_none());
 
         Ok(())
     }

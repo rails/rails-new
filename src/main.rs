@@ -1,8 +1,10 @@
 // Write a CLI program that call the bash file rails-new inside the bin folder.
 
 // use std::process::Command;
+mod config;
 mod docker_client;
 mod rails_new;
+use config::Config;
 use rails_new::{Cli, Commands};
 use std::{io::Write, process::Command};
 
@@ -16,9 +18,14 @@ mod os_specific;
 
 fn main() {
     let cli = Cli::parse();
+    let config = Config::load().unwrap_or_else(|error| {
+        eprintln!("rails-new: {error}");
+        std::process::exit(2);
+    });
 
-    let ruby_version = cli.ruby_version;
-    let rails_version = cli.rails_version.as_deref();
+    let (ruby_version, rails_version) =
+        config.resolve_versions(cli.ruby_version, cli.rails_version);
+    let rails_version = rails_version.as_deref();
     let rebuild = cli.rebuild;
 
     // Run docker build --build-arg RUBY_VERSION=$RUBY_VERSION --build-arg RAILS_VERSION=$RAILS_VERSION -t rails-new-$RUBY_VERSION-$RAILS_VERSION
@@ -51,7 +58,11 @@ fn main() {
 
         None => {
             // Run the image with docker run -v $(pwd):/$(pwd) -w $(pwd) rails-new-$RUBY_VERSION-$RAILS_VERSION rails new $@
-            command = DockerClient::run_image(&ruby_version, rails_version, cli.args)
+            command = DockerClient::run_image(
+                &ruby_version,
+                rails_version,
+                config.merge_rails_args(cli.args),
+            )
         }
     }
 
